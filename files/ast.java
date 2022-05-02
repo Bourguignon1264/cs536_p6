@@ -133,6 +133,19 @@ class ProgramNode extends ASTnode {
     public void nameAnalysis() {
         SymTable symTab = new SymTable();
         myDeclList.nameAnalysis(symTab);
+
+        //  Checks whether the program contains a function named main
+        Sym main = null;
+        try {
+            main = symTab.lookupGlobal("main");
+        } catch (EmptySymTableException ex) {
+            System.err.println("Unexpected EmptySymTableException " +
+                                " in ProgramNode.nameAnalysis");
+            System.exit(-1);
+        } 
+        if(main == null || !main.getType().isFnType()) {
+                ErrMsg.fatal(0, 0, "No main function");
+        }
     }
     
     /***
