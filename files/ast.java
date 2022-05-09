@@ -113,6 +113,8 @@ abstract class ASTnode {
     protected void doIndent(PrintWriter p, int indent) {
         for (int k=0; k<indent; k++) p.print(" ");
     }
+
+    public void codeGen(){}
 }
 
 // **********************************************************************
@@ -138,13 +140,20 @@ class ProgramNode extends ASTnode {
         Sym main = null;
         try {
             main = symTab.lookupGlobal("main");
-        } catch (EmptySymTableException ex) {
+        }
+        
+        catch (EmptySymTableException ex) {
             System.err.println("Unexpected EmptySymTableException " +
                                 " in ProgramNode.nameAnalysis");
             System.exit(-1);
-        } 
-        if(main == null || !main.getType().isFnType()) {
-                ErrMsg.fatal(0, 0, "No main function");
+        }
+
+        if(main == null) {
+            ErrMsg.fatal(0, 0, "No main function");
+        }
+
+        if(!main.getType().isFnType()) {
+            ErrMsg.fatal(0, 0, "No main function");
         }
     }
     
@@ -237,6 +246,9 @@ class FormalsListNode extends ASTnode {
                 typeList.add(sym.getType());
             }
         }
+
+        symTab.offset = 4;
+
         return typeList;
     }    
     
@@ -277,6 +289,8 @@ class FnBodyNode extends ASTnode {
     public void nameAnalysis(SymTable symTab) {
         myDeclList.nameAnalysis(symTab);
         myStmtList.nameAnalysis(symTab);
+
+        symTab.offset = -8;
     }    
  
     /***
@@ -495,6 +509,17 @@ class VarDeclNode extends DeclNode {
                 System.exit(-1);
             }
         }
+
+        // TODO: comment
+        sym.global = symTab.getLevel() == 1;
+
+        if (sym.global) {
+            sym.offset = 0;
+        } else {
+            sym.offset = symTab.offset;
+        }
+
+        symTab.offset -= 4;
         
         return sym;
     }    
@@ -586,6 +611,9 @@ class FnDeclNode extends DeclNode {
                                " in FnDeclNode.nameAnalysis");
             System.exit(-1);
         }
+
+        // TODO: check location of this statement
+        sym.offset = symTab.offset;
         
         return null;
     } 
@@ -668,6 +696,9 @@ class FormalDeclNode extends DeclNode {
                 System.exit(-1);
             }
         }  
+
+        sym.offset = symTab.offset;
+        symTab.offset = symTab.offset + 4;
         
         return sym;
     } 		
@@ -841,6 +872,7 @@ class StructNode extends TypeNode {
 // **********************************************************************
 
 abstract class StmtNode extends ASTnode {
+    abstract public void codeGen();
     abstract public void nameAnalysis(SymTable symTab);
     abstract public void typeCheck(Type retType);
 }
@@ -992,6 +1024,9 @@ class ReadStmtNode extends StmtNode {
 }
 
 class WriteStmtNode extends StmtNode {
+    private Type globalType;
+
+
     public WriteStmtNode(ExpNode exp) {
         myExp = exp;
     }
@@ -1009,6 +1044,8 @@ class WriteStmtNode extends StmtNode {
      ***/
     public void typeCheck(Type retType) {
         Type type = myExp.typeCheck();
+
+        globalType = type;
         
         if (type.isFnType()) {
             ErrMsg.fatal(myExp.lineNum(), myExp.charNum(),
@@ -1342,6 +1379,8 @@ abstract class ExpNode extends ASTnode {
     /***
      * Default version for nodes with no names
      ***/
+    abstract public void codeGen();
+
     public void nameAnalysis(SymTable symTab) { }
     
     abstract public Type typeCheck();
@@ -1422,6 +1461,11 @@ class StringLitNode extends ExpNode {
     private int myCharNum;
     private String myStrVal;
 }
+
+// bobby
+// SPLIT
+// kevin
+
 
 class TrueNode extends ExpNode {
     public TrueNode(int lineNum, int charNum) {

@@ -5,6 +5,9 @@ import java.util.*;
  * Each Sym contains a type (a Type).
  ***/
 public class Sym {
+    public boolean global;
+    public int offset;
+
     private Type type;
     
     public Sym(Type type) {

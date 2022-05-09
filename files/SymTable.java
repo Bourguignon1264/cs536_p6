@@ -1,6 +1,8 @@
 import java.util.*;
 
 public class SymTable {
+	public int offset = 8;
+
 	private List<HashMap<String, Sym>> list;
 	
 	public SymTable() {
@@ -61,5 +63,9 @@ public class SymTable {
 			System.out.println(symTab.toString());
 		}
 		System.out.println();
+	}
+
+	public int getLevel() {
+		return list.size();
 	}
 }
