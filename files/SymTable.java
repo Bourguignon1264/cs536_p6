@@ -2,7 +2,7 @@ import java.util.*;
 
 public class SymTable {
 	public int offset = 8;
-
+	public String funName = "main";
 	private List<HashMap<String, Sym>> list;
 	
 	public SymTable() {
