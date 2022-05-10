@@ -169,10 +169,6 @@ class ProgramNode extends ASTnode {
         myDeclList.typeCheck();
     }
 
-    public void codeGen(){
-        myDeclList.codeGen();
-    }
-
     public void unparse(PrintWriter p, int indent) {
         myDeclList.unparse(p, indent);
     }
@@ -217,11 +213,6 @@ class DeclListNode extends ASTnode {
         for (DeclNode node : myDecls) {
             node.typeCheck();
         }
-    }
-
-    public void codeGen(){
-        for (DeclNode node : myDecls) 
-            node.codeGen();
     }
 
     public void unparse(PrintWriter p, int indent) {
@@ -1513,7 +1504,6 @@ class TrueNode extends ExpNode {
         p.print("true");
     }
 
-    //@Override
     public void codeGen() {
         String isTrue = Integer.toString(1);
         Codegen.generate("li", Codegen.V0, isTrue);
@@ -1555,7 +1545,6 @@ class FalseNode extends ExpNode {
         p.print("false");
     }
 
-    //@Override
     public void codeGen() {
         String isFalse = Integer.toString(0);
         Codegen.generate("li", Codegen.V0, isFalse);
@@ -1650,7 +1639,6 @@ class IdNode extends ExpNode {
         }
     }
 
-    //@Override
     public void codeGen() {
         if(!mySym.global) {
             Codegen.generateIndexed("lw", Codegen.V0, Codegen.FP, mySym.offset);
@@ -1810,6 +1798,10 @@ class DotAccessExpNode extends ExpNode {
         myId.unparse(p, 0);
     }
 
+    public void codeGen(){
+
+    }
+
     // two kids
     private ExpNode myLoc;
     private IdNode myId;
@@ -1893,7 +1885,6 @@ class AssignExpNode extends ExpNode {
         if (indent != -1)  p.print(")");
     }
 
-    //@Override
     public void codeGen() {
         myExp.codeGen();
         Codegen.genPop(Codegen.V0);
@@ -1987,7 +1978,6 @@ class CallExpNode extends ExpNode {
         p.print(")");
     }
 
-    //@Override
     public void codeGen() {
         myExpList.codeGen();
         Codegen.generate("jal", myId.name());
@@ -2103,7 +2093,6 @@ class UnaryMinusNode extends UnaryExpNode {
         p.print(")");
     }
 
-    //@Override
     public void codeGen() {
         myExp.codeGen();
         Codegen.genPop(Codegen.V0);
@@ -2144,7 +2133,6 @@ class NotNode extends UnaryExpNode {
         p.print(")");
     }
 
-    //@Override
     public void codeGen() {
         myExp.codeGen();
         Codegen.genPop(Codegen.V0);
@@ -2321,7 +2309,6 @@ class PlusNode extends ArithmeticExpNode {
         p.print(")");
     }
 
-    //@Override
     public void codeGen() {
         myExp1.codeGen();
         myExp2.codeGen();
@@ -2346,7 +2333,6 @@ class MinusNode extends ArithmeticExpNode {
         p.print(")");
     }
 
-    //@Override
     public void codeGen() {
         myExp1.codeGen();
         myExp2.codeGen();
@@ -2372,7 +2358,6 @@ class TimesNode extends ArithmeticExpNode {
         p.print(")");
     }
 
-    //@Override
     public void codeGen() {
         myExp1.codeGen();
         myExp2.codeGen();
@@ -2398,7 +2383,6 @@ class DivideNode extends ArithmeticExpNode {
         p.print(")");
     }
 
-    @Override
     public void codeGen() {
         myExp1.codeGen();
         myExp2.codeGen();
@@ -2424,7 +2408,6 @@ class AndNode extends LogicalExpNode {
         p.print(")");
     }
 
-    //@Override
     public void codeGen() {
         myExp1.codeGen();
         Codegen.genPop(Codegen.V0);
@@ -2456,8 +2439,7 @@ class OrNode extends LogicalExpNode {
         myExp2.unparse(p, 0);
         p.print(")");
     }
-// TODO
-    @Override
+
     public void codeGen() {
 
 
@@ -2492,7 +2474,6 @@ class EqualsNode extends EqualityExpNode {
         p.print(")");
     }
 
-    //@Override
     public void codeGen() {
         if (myExp1 instanceof StringLitNode && myExp2 instanceof StringLitNode){
             String string1 = ((StringLitNode) myExp1).toString();
@@ -2531,7 +2512,6 @@ class NotEqualsNode extends EqualityExpNode {
         p.print(")");
     }
 
-    @Override
     public void codeGen() {
         if (myExp1 instanceof StringLitNode && myExp2 instanceof StringLitNode){
             String string1 = ((StringLitNode) myExp1).toString();
@@ -2570,7 +2550,6 @@ class LessNode extends RelationalExpNode {
         p.print(")");
     }
 
-    @Override
     public void codeGen() {
         myExp1.codeGen();
         myExp2.codeGen();
@@ -2596,7 +2575,6 @@ class GreaterNode extends RelationalExpNode {
         p.print(")");
     }
 
-    @Override
     public void codeGen() {
         myExp1.codeGen();
         myExp2.codeGen();
@@ -2622,7 +2600,6 @@ class LessEqNode extends RelationalExpNode {
         p.print(")");
     }
 
-    @Override
     public void codeGen() {
         myExp1.codeGen();
         myExp2.codeGen();
@@ -2649,7 +2626,7 @@ class GreaterEqNode extends RelationalExpNode {
         p.print(")");
     }
 
-    @Override
+
     public void codeGen() {
         myExp1.codeGen();
         myExp2.codeGen();
@@ -2661,5 +2638,4 @@ class GreaterEqNode extends RelationalExpNode {
         Codegen.genPush(Codegen.V0);
     }
 }
-//test
 
