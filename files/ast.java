@@ -1633,7 +1633,8 @@ class IntLitNode extends ExpNode {
     }
 
     public void codeGen() {
-        Codegen.generate("li", Codegen.V0, myIntVal);
+        String intVal = Integer.toString(myIntVal);
+        Codegen.generate("li", Codegen.V0, intVal);
         Codegen.genPush(Codegen.V0);
     }
 
