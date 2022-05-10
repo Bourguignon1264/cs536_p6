@@ -698,52 +698,6 @@ class FnDeclNode extends DeclNode {
         Codegen.p.println();
     }
 
-    @Override
-    public void codeGen(){
-        // 1. preamble
-        Codegen.p.println(".text");
-        Codegen.genLabel(myId.name());
-        
-        if(myId.name().equals("main"))
-            Codegen.genLabel("__start");
-
-
-        // 2. prologue
-        int offset = -myId.sym().offset;
-        
-        Codegen.genPush(Codegen.RA);
-        Codegen.genPush(Codegen.FP);
-        
-        Codegen.generate("subu", Codegen.SP, Codegen.SP, offset - 8);
-        Codegen.generate("addu", Codegen.FP, Codegen.SP, offset);
-
-        Codegen.p.println();
-
-        // 3. body
-        myBody.codeGen();
-        
-        // 4. epilogue
-        Codegen.genLabel("_" + myId.name() + "_exit");
-        if(myId.name().equals("main")){
-            Codegen.generate("li", Codegen.V0, 10);
-            Codegen.generate("syscall");
-        } else {
-            Codegen.genPop(Codegen.V0);
-
-            Codegen.generateIndexed("lw", Codegen.RA, Codegen.FP, 0); // restore return address
-            Codegen.generate("move", Codegen.T0, Codegen.FP);         // 
-            Codegen.generateIndexed("lw", Codegen.FP, Codegen.FP, -4);
-            Codegen.generate("move", Codegen.SP, Codegen.T0);
-            Codegen.generate("addi", Codegen.SP, Codegen.SP, Integer.toString(myFormalsList.length() * 4));
-            
-            Codegen.genPush(Codegen.V0);
-
-            Codegen.generate("jr", Codegen.RA);
-        }
-        
-        Codegen.p.println();
-    }
-
     public void unparse(PrintWriter p, int indent) {
         doIndent(p, indent);
         myType.unparse(p, 0);
@@ -1679,7 +1633,7 @@ class IntLitNode extends ExpNode {
     }
 
     public void codeGen() {
-        Codegen.generate("li", Codegen.V0, intval);
+        Codegen.generate("li", Codegen.V0, myIntVal);
         Codegen.genPush(Codegen.V0);
     }
 
