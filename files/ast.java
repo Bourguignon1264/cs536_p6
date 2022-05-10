@@ -169,6 +169,10 @@ class ProgramNode extends ASTnode {
         myDeclList.typeCheck();
     }
 
+    public void codeGen(){
+        myDeclList.codeGen();
+    }
+
     public void unparse(PrintWriter p, int indent) {
         myDeclList.unparse(p, indent);
     }
@@ -213,6 +217,11 @@ class DeclListNode extends ASTnode {
         for (DeclNode node : myDecls) {
             node.typeCheck();
         }
+    }
+
+    public void codeGen(){
+        for (DeclNode node : myDecls) 
+            node.codeGen();
     }
 
     public void unparse(PrintWriter p, int indent) {
@@ -2447,7 +2456,7 @@ class OrNode extends LogicalExpNode {
         myExp2.unparse(p, 0);
         p.print(")");
     }
-
+// TODO
     @Override
     public void codeGen() {
 
