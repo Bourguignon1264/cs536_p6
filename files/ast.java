@@ -1527,7 +1527,6 @@ class WhileStmtNode extends StmtNode {
         p.println("}");
     }
 
-    @Override
     public void codeGen() {
         String start = Codegen.nextLabel();
 
@@ -1702,7 +1701,6 @@ class IntLitNode extends ExpNode {
         p.print(myIntVal);
     }
 
-    @Override
     public void codeGen() {
         String intVal = Integer.toString(myIntVal);
         Codegen.generate("li", Codegen.V0, intval);
