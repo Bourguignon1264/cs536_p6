@@ -157,11 +157,6 @@ class ProgramNode extends ASTnode {
         }
     }
 
-    public int test(int s){
-        int test = 5;
-        int s = 5;
-    }
-
     /***
      * typeCheck
      ***/
@@ -703,6 +698,7 @@ class FnDeclNode extends DeclNode {
         Codegen.p.println();
     }
 
+    @Override
     public void codeGen(){
         // 1. preamble
         Codegen.p.println(".text");
@@ -1254,7 +1250,7 @@ class WriteStmtNode extends StmtNode {
             Codegen.generate("la", Codegen.A0, ((StringLitNode)myExp).getLabel());
             Codegen.generate("li", Codegen.V0, "4"); // print
             Codegen.generate("syscall");
-        } else if (type.isIntType() || type.isBoolType()) {
+        } else if (globalType.isIntType() || globalType.isBoolType()) {
             Codegen.genPop(Codegen.A0);
             Codegen.generate("li", Codegen.V0, "1"); // print
             Codegen.generate("syscall");
@@ -1340,25 +1336,6 @@ class IfStmtNode extends StmtNode {
         myStmtList.unparse(p, indent+4);
         doIndent(p, indent);
         p.println("}");
-    }
-
-    public void codeGen() {
-
-        String start = Codegen.nextLabel();
-
-        Codegen.p.println(start + ": ");
-        myExp.codeGen();
-        Codegen.genPop(Codegen.V0);
-        Codegen.generate("li", Codegen.V1, "0");
-
-        String end = Codegen.nextLabel();
-        Codegen.generate("beq", Codegen.V0, Codegen.V1, end); // if false
-
-        myStmtList.codeGen();
-
-        Codegen.generate("j", start);
-
-        Codegen.p.println(end + ": ");
     }
 
     // three kids
@@ -1718,6 +1695,11 @@ class StringLitNode extends ExpNode {
         myStrVal = strVal;
     }
 
+    // TODO: remove/change
+    public String getLabel() {
+        return label;
+    }
+
     /***
      * Return the line number for this literal.
      ***/
@@ -1754,6 +1736,8 @@ class StringLitNode extends ExpNode {
     private int myLineNum;
     private int myCharNum;
     private String myStrVal;
+    // TODO: remove/change
+    private String label;
 }
 
 // bobby
