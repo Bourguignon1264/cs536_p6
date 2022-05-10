@@ -1062,7 +1062,7 @@ class PostIncStmtNode extends StmtNode {
     public void codeGen() {
         Sym sym = ((IdNode) myExp).sym();
 
-        if(sym.isGlobal){
+        if(sym.global){
             Codegen.generate("lw", Codegen.V0, "_" + ((IdNode) myExp).name());
             Codegen.generate("addi", Codegen.V0, Codegen.V0, Integer.toString(1));
             Codegen.generate("sw", Codegen.V0, "_" + ((IdNode) myExp).name());
@@ -1112,7 +1112,7 @@ class PostDecStmtNode extends StmtNode {
     public void codeGen() {
         Sym sym = ((IdNode) myExp).sym();
 
-        if(sym.isGlobal){
+        if(sym.global){
             Codegen.generate("lw", Codegen.V0, "_" + ((IdNode) myExp).name());
             Codegen.generate("addi", Codegen.V0, Codegen.V0, Integer.toString(-1));
             Codegen.generate("sw", Codegen.V0, "_" + ((IdNode) myExp).name());
@@ -1182,7 +1182,7 @@ class ReadStmtNode extends StmtNode {
         Codegen.generate("li", Codegen.V0, Codegen.TRUE);
         Codegen.p.println(endLabel + ": ");
 
-        if(sym.isGlobal){
+        if(sym.global){
             Codegen.generate("sw", Codegen.V0, "_" + ((IdNode) myExp).name());
         } else {
             Codegen.generateIndexed("sw", Codegen.V0, Codegen.FP, sym.offset);
