@@ -164,6 +164,10 @@ class ProgramNode extends ASTnode {
         myDeclList.typeCheck();
     }
 
+    public void codeGen(){
+        myDeclList.codeGen();
+    }
+
     public void unparse(PrintWriter p, int indent) {
         myDeclList.unparse(p, indent);
     }
