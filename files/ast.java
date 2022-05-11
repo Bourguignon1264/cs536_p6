@@ -659,12 +659,14 @@ class FnDeclNode extends DeclNode {
 
     public void codeGen(){
         // 1. preamble
-        Codegen.p.println(".text");
-        Codegen.genLabel(myId.name());
-        
-        if(myId.name().equals("main"))
+        Codegen.generate(".text");
+        if(myId.name().equals("main")){
+            Codegen.generate(".globl main");
+            Codegen.genLabel("main");   
             Codegen.genLabel("__start");
-
+        } else {
+            Codegen.genLabel("_" + myId.name());
+        }
 
         // 2. prologue
         int offset = -myId.sym().offset;
@@ -672,7 +674,6 @@ class FnDeclNode extends DeclNode {
         Codegen.genPush(Codegen.RA);
         Codegen.genPush(Codegen.FP);
         
-        Codegen.generate("subu", Codegen.SP, Codegen.SP, offset - 8);
         Codegen.generate("addu", Codegen.FP, Codegen.SP, offset);
 
         Codegen.p.println();
@@ -682,22 +683,19 @@ class FnDeclNode extends DeclNode {
         
         // 4. epilogue
         Codegen.genLabel("_" + myId.name() + "_exit");
-        if(myId.name().equals("main")){
-            Codegen.generate("li", Codegen.V0, 10);
-            Codegen.generate("syscall");
-        } else {
-            Codegen.genPop(Codegen.V0);
 
-            Codegen.generateIndexed("lw", Codegen.RA, Codegen.FP, 0); // restore return address
-            Codegen.generate("move", Codegen.T0, Codegen.FP);         // 
-            Codegen.generateIndexed("lw", Codegen.FP, Codegen.FP, -4);
-            Codegen.generate("move", Codegen.SP, Codegen.T0);
-            Codegen.generate("addi", Codegen.SP, Codegen.SP, Integer.toString(myFormalsList.length() * 4));
-            
-            Codegen.genPush(Codegen.V0);
+        Codegen.generateIndexed("lw", Codegen.RA, Codegen.FP, - myFormalsList.length()*4);
+		Codegen.generate("move",  Codegen.T0, Codegen.FP);
+		Codegen.generateIndexed("lw", Codegen.FP, Codegen.FP, -myFormalsList.length()*4-4);
+		Codegen.generate("move", Codegen.SP, Codegen.T0);
 
-            Codegen.generate("jr", Codegen.RA);
-        }
+		if(myId.name().equals("main")) {
+			Codegen.generate("li", Codegen.V0, "10");
+			Codegen.generate("syscall");
+		}
+		else
+			Codegen.generate("jr", Codegen.RA);
+		
         
         Codegen.p.println();
     }
@@ -1205,15 +1203,17 @@ class WriteStmtNode extends StmtNode {
         myExp.codeGen(); 
 
         if (myExp instanceof StringLitNode) {
-            Codegen.generate("la", Codegen.A0, ((StringLitNode)myExp).getLabel());
+            Codegen.generate("la", Codegen.T0, ((StringLitNode)myExp).getLabel());
+            Codegen.genPush(Codegen.T0);
+            Codegen.genPop(Codegen.A0);
             Codegen.generate("li", Codegen.V0, "4"); // print
             Codegen.generate("syscall");
         } else if (globalType.isIntType() || globalType.isBoolType()) {
-            Codegen.genPop(Codegen.A0);
             Codegen.generate("li", Codegen.V0, "1"); // print
             Codegen.generate("syscall");
         } 
 
+        
         Codegen.p.println();	
     }
 
